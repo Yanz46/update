@@ -1,23 +1,37 @@
+// Menyimpan data lokasi terakhir di memori server
+let lokasiTerakhir = {
+  lat: "Belum ada data",
+  lng: "Belum ada data",
+  waktu: "-"
+};
+
 export default function handler(req, res) {
-  // Hanya menerima metode POST dari Sketchware
+  // 1. JIKA APLIKASI SKETCHWARE NGIRIM DATA (POST)
   if (req.method === 'POST') {
-    
-    // Menangkap data lat dan lng yang dikirim Sketchware
     const { lat, lng } = req.body;
+    
+    // Simpan ke memori
+    lokasiTerakhir = {
+      lat: lat || "0",
+      lng: lng || "0",
+      waktu: new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })
+    };
 
-    // Menampilkan data di log Vercel (bisa lo cek di dashboard Vercel)
-    console.log(`LOG ADMIN -> Lat: ${lat}, Lng: ${lng}`);
+    console.log(`Data Masuk: Lat ${lat}, Lng ${lng}`);
 
-    // Mengembalikan respon format JSON ke Sketchware
     return res.status(200).json({ 
       status: "success", 
-      message: "Lokasi berhasil diterima server!",
-      latitude: lat,
-      longitude: lng
+      message: "Lokasi berhasil masuk ke website admin!" 
     });
-
-  } else {
-    // Jika diakses langsung lewat browser (GET), munculkan error
+  } 
+  
+  // 2. JIKA WEBSITE ADMIN MINTA DATA (GET)
+  else if (req.method === 'GET') {
+    return res.status(200).json(lokasiTerakhir);
+  } 
+  
+  // Metode lain ditolak
+  else {
     return res.status(405).json({ error: "Metode tidak diizinkan" });
   }
 }
