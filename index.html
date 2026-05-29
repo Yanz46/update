@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Pelacak Lokasi</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 50px 20px; }
+        .box { background-color: #1e1e1e; padding: 30px; border-radius: 15px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.5); min-width: 300px; }
+        h1 { color: #00ff88; margin-bottom: 25px; }
+        p { font-size: 18px; margin: 10px 0; }
+        .koordinat { font-weight: bold; color: #00bfff; }
+        .btn { display: inline-block; margin-top: 20px; padding: 12px 25px; background-color: #ff3366; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+        .btn:hover { background-color: #ff0044; }
+        .refresh-btn { background-color: #333; color: #aaa; margin-top: 10px; font-size: 12px; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>📍 WEB ADMIN TRACKER</h1>
+        <hr border="1" color="#333">
+        <p>Waktu Update: <br><span id="waktu" class="koordinat">-</span></p>
+        <p>Latitude: <span id="lat" class="koordinat">Loading...</span></p>
+        <p>Longitude: <span id="lng" class="koordinat">Loading...</span></p>
+        
+        <a id="mapsLink" href="#" target="_blank" class="btn" style="display: none;">Buka di Google Maps</a>
+        <br>
+        <button class="refresh-btn" onclick="ambilDataLokasi()">Cek Data Terbaru</button>
+    </div>
+
+    <script>
+        function ambilDataLokasi() {
+            // Mengambil data dari file update_lokasi.js tadi
+            fetch('/api/update_lokasi')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('lat').innerText = data.lat;
+                    document.getElementById('lng').innerText = data.lng;
+                    document.getElementById('waktu').innerText = data.waktu;
+                    
+                    const mapsBtn = document.getElementById('mapsLink');
+                    if(data.lat !== "Belum ada data" && data.lat !== "0") {
+                        // Pasang koordinat ke link Google Maps
+                        mapsBtn.href = `https://www.google.com/maps?q=${data.lat},${data.lng}`;
+                        mapsBtn.style.display = 'inline-block';
+                    } else {
+                        mapsBtn.style.display = 'none';
+                    }
+                })
+                .catch(err => console.error("Gagal mengambil data:", err));
+        }
+
+        // Jalankan fungsi otomatis saat web dibuka
+        ambilDataLokasi();
+        // Auto refresh setiap 5 detik
+        setInterval(ambilDataLokasi, 5000);
+    </script>
+</body>
+</html>
